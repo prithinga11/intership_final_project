@@ -1,0 +1,21 @@
+EmployeeID,Name,Phone,Email,Age,Gender,Education,DateOfJoining,Department,Designation,Experience,Attendance,TasksAssigned,TasksCompleted,DeadlineAdherence,PerformanceScore
+EMP001,Aarav Sharma,9876543210,aarav.sharma@vergex.com,29,Male,B.Tech Computer Science,2021-04-12,Software Development,Senior Software Engineer,5,97,145,141,95,96
+EMP002,Priya Nair,9876543211,priya.nair@vergex.com,27,Female,MCA,2022-07-18,Software Development,Frontend Developer,3,94,132,126,91,89
+EMP003,Rahul Verma,9876543212,rahul.verma@vergex.com,31,Male,B.E Information Technology,2020-02-10,Cyber Security,Security Analyst,6,96,138,133,94,92
+EMP004,Sneha Iyer,9876543213,sneha.iyer@vergex.com,26,Female,B.Tech AI & DS,2023-01-16,Artificial Intelligence,AI Engineer,2,93,120,116,90,87
+EMP005,Arjun Patel,9876543214,arjun.patel@vergex.com,30,Male,B.Tech Computer Science,2019-09-08,Software Development,Tech Lead,7,98,155,152,97,98
+EMP006,Meera Krishnan,9876543215,meera.krishnan@vergex.com,25,Female,BCA,2023-05-22,Human Resources,HR Executive,2,91,102,97,89,82
+EMP007,Vikram Singh,9876543216,vikram.singh@vergex.com,33,Male,MBA,2018-03-19,Marketing,Marketing Manager,8,95,118,112,93,90
+EMP008,Ananya Rao,9876543217,ananya.rao@vergex.com,24,Female,BBA,2024-02-05,Finance,Financial Analyst,1,92,101,95,88,81
+EMP009,Karthik Raj,9876543218,karthik.raj@vergex.com,28,Male,B.Tech Information Technology,2021-11-01,Cloud Computing,Cloud Engineer,4,95,140,136,94,91
+EMP010,Divya Menon,9876543219,divya.menon@vergex.com,29,Female,M.Sc Data Science,2020-08-14,Data Science,Data Scientist,5,96,148,144,95,94
+EMP011,Rohan Kapoor,9876543220,rohan.kapoor@vergex.com,32,Male,B.Tech Computer Science,2019-06-11,DevOps,DevOps Engineer,6,94,136,129,92,88
+EMP012,Nisha Reddy,9876543221,nisha.reddy@vergex.com,27,Female,M.Tech AI,2022-10-20,Artificial Intelligence,ML Engineer,3,95,134,130,94,90
+EMP013,Aditya Joshi,9876543222,aditya.joshi@vergex.com,34,Male,MBA HR,2017-01-09,Human Resources,HR Manager,9,97,109,106,96,95
+EMP014,Kavya Srinivasan,9876543223,kavya.srinivasan@vergex.com,26,Female,B.Com,2023-03-27,Finance,Accounts Executive,2,90,104,98,87,79
+EMP015,Harish Kumar,9876543224,harish.kumar@vergex.com,35,Male,B.E Electronics,2016-12-15,Operations,Operations Manager,10,98,160,156,98,99
+EMP016,Pooja Desai,9876543225,pooja.desai@vergex.com,28,Female,MBA Marketing,2021-07-29,Marketing,Digital Marketing Specialist,4,93,126,120,90,86
+EMP017,Akash Gupta,9876543226,akash.gupta@vergex.com,25,Male,B.Tech Cyber Security,2024-01-18,Cyber Security,Security Associate,1,89,95,88,85,76
+EMP018,Neha Sharma,9876543227,neha.sharma@vergex.com,31,Female,M.Sc Computer Science,2019-05-06,Quality Assurance,QA Lead,6,96,142,138,95,93
+EMP019,Sanjay Pillai,9876543228,sanjay.pillai@vergex.com,36,Male,M.Tech Software Engineering,2015-11-23,Software Development,Engineering Manager,11,97,165,160,97,97
+EMP020,Ishita Bose,9876543229,ishita.bose@vergex.com,24,Female,B.Tech Information Technology,2024-06-03,UI/UX Design,UI/UX Designer,1,91,99,94,88,80

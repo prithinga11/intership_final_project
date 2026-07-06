@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VergeX — My Performance</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 16px; }
+        .score-num { font-size: 36px; font-weight: 800; color: white; line-height: 1; }
+        .score-lbl { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 500; margin-top: 2px; }
+        .profile-card { background: white; border-radius: 16px; padding: 32px; border: 1px solid #e5e7eb; text-align: center; margin-bottom: 20px; }
+        .emp-name-big { font-size: 22px; font-weight: 700; color: #0f1224; margin-bottom: 4px; }
+        .emp-meta { font-size: 14px; color: #6b7280; margin-bottom: 20px; }
+        .grade-pill { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 20px; }
+        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center; border-top: 1px solid #f3f4f6; padding-top: 20px; }
+        .metric-val { font-size: 24px; font-weight: 700; color: #0f1224; }
+        .metric-lbl { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+        .timeline-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+        .tl-item { display: flex; gap: 16px; margin-bottom: 20px; }
+        .tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .tl-content { flex: 1; }
+        .tl-title { font-size: 14px; font-weight: 600; color: #0f1224; margin-bottom: 2px; }
+        .tl-sub { font-size: 13px; color: #6b7280; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">
+        <div class="logo-icon">VX</div>
+        <span class="logo-text">VergeX</span>
+    </div>
+    <div class="nav-section-label">MY MENU</div>
+    <nav>
+        <a class="nav-item active" onclick="showEmp('profile',this)">My Profile</a>
+        <a class="nav-item" onclick="showEmp('timeline',this)">Performance Timeline</a>
+        <a class="nav-item" onclick="showEmp('insights',this)">AI Insights</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-pill">
+            <div class="user-avatar" id="eAvatar">E</div>
+            <div>
+                <div class="user-name" id="eName">Employee</div>
+                <div class="user-role">Employee</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="header">
+        <div>
+            <h1 id="ePageTitle">My Performance</h1>
+            <p>Your personal analytics and performance overview</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="header-date" id="eDateEl"></div>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="ep-profile" class="section-anim">
+        <div class="profile-card">
+            <div class="score-circle">
+                <div class="score-num" id="ep-score">--</div>
+                <div class="score-lbl">SCORE</div>
+            </div>
+            <div class="emp-name-big" id="ep-name">--</div>
+            <div class="emp-meta" id="ep-meta">--</div>
+            <div class="grade-pill badge-excellent" id="ep-grade">--</div>
+            <div class="metrics-row">
+                <div><div class="metric-val" id="ep-att">--</div><div class="metric-lbl">Attendance</div></div>
+                <div><div class="metric-val" id="ep-tasks">--</div><div class="metric-lbl">Tasks Done</div></div>
+                <div><div class="metric-val" id="ep-deadline">--</div><div class="metric-lbl">On-Time %</div></div>
+            </div>
+        </div>
+        <div class="cards-grid">
+            <div class="card card-blue">
+                <div class="card-top"><div class="card-label">Department</div><div class="card-icon">🏢</div></div>
+                <div class="card-value" style="font-size:18px;" id="ep-dept">--</div>
+                <div class="card-sub">Your team</div>
+            </div>
+            <div class="card card-purple">
+                <div class="card-top"><div class="card-label">Designation</div><div class="card-icon">💼</div></div>
+                <div class="card-value" style="font-size:18px;" id="ep-desig">--</div>
+                <div class="card-sub">Your role</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-top"><div class="card-label">Experience</div><div class="card-icon">📅</div></div>
+                <div class="card-value" id="ep-exp">--</div>
+                <div class="card-sub">Years at company</div>
+            </div>
+            <div class="card card-orange">
+                <div class="card-top"><div class="card-label">Task Rate</div><div class="card-icon">✓</div></div>
+                <div class="card-value" id="ep-rate">--</div>
+                <div class="card-sub">Completion rate</div>
+            </div>
+        </div>
+        <div class="timeline-card">
+            <div class="chart-title" style="margin-bottom:20px;">Personal Information</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Age</span><span id="ep-age" style="font-weight:600;color:#0f1224;">--</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Blood Group</span><span id="ep-blood" style="font-weight:600;color:#0f1224;">--</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Date of Joining</span><span id="ep-doj" style="font-weight:600;color:#0f1224;">--</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Emergency Contact</span><span id="ep-ecname" style="font-weight:600;color:#0f1224;">--</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;grid-column:1 / -1;"><span style="color:#6b7280;">Emergency Phone</span><span id="ep-ecphone" style="font-weight:600;color:#0f1224;">--</span></div>
+            </div>
+        </div>
+        <div class="footer-note">VergeX Analytics Dashboard &nbsp;•&nbsp; Last Updated: Today</div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div id="ep-timeline" style="display:none;" class="section-anim">
+        <div class="timeline-card">
+            <div class="chart-title" style="margin-bottom:24px;">Performance Timeline</div>
+            <canvas id="timelineChart"></canvas>
+        </div>
+        <div class="timeline-card">
+            <div class="chart-title" style="margin-bottom:20px;">Key Milestones</div>
+            <div id="tlItems"></div>
+        </div>
+    </div>
+
+    <!-- AI INSIGHTS -->
+    <div id="ep-insights" style="display:none;" class="section-anim">
+        <div class="ai-grid" id="empAiGrid"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const API = 'http://127.0.0.1:5000';
+if (localStorage.getItem('vergex_role') !== 'employee') window.location.href = 'login.html';
+
+const emp = JSON.parse(localStorage.getItem('vergex_emp') || '{}');
+const name = emp.Name || 'Employee';
+const taskRate = emp.TasksAssigned ? ((emp.TasksCompleted / emp.TasksAssigned) * 100).toFixed(0) : 0;
+const grade = emp.PerformanceScore >= 90 ? 'Excellent' : emp.PerformanceScore >= 75 ? 'Good' : emp.PerformanceScore >= 60 ? 'Average' : 'Poor';
+const badgeMap = { Excellent: 'badge-excellent', Good: 'badge-good', Average: 'badge-avg', Poor: 'badge-poor' };
+
+if (emp.Photo) {
+    document.getElementById('eAvatar').innerHTML = `<img src="${emp.Photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+} else {
+    document.getElementById('eAvatar').textContent = name.charAt(0);
+}
+document.getElementById('eName').textContent = name;
+document.getElementById('ep-age').textContent = emp.Age || '--';
+document.getElementById('ep-blood').textContent = emp.BloodGroup || '--';
+document.getElementById('ep-doj').textContent = emp.DateOfJoining || '--';
+document.getElementById('ep-ecname').textContent = emp.EmergencyContactName || '--';
+document.getElementById('ep-ecphone').textContent = emp.EmergencyContactPhone || '--';
+document.getElementById('eDateEl').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+document.getElementById('ep-score').textContent = emp.PerformanceScore || '--';
+document.getElementById('ep-name').textContent = name;
+document.getElementById('ep-meta').textContent = (emp.Department || '') + ' · ' + (emp.Designation || '');
+document.getElementById('ep-grade').textContent = grade;
+document.getElementById('ep-grade').className = 'grade-pill ' + badgeMap[grade];
+document.getElementById('ep-att').textContent = (emp.Attendance || '--') + '%';
+document.getElementById('ep-tasks').textContent = (emp.TasksCompleted || '--') + '/' + (emp.TasksAssigned || '--');
+document.getElementById('ep-deadline').textContent = (emp.DeadlineAdherence || '--') + '%';
+document.getElementById('ep-dept').textContent = emp.Department || '--';
+document.getElementById('ep-desig').textContent = emp.Designation || '--';
+document.getElementById('ep-exp').textContent = (emp.Experience || '--') + ' yrs';
+document.getElementById('ep-rate').textContent = taskRate + '%';
+
+function showEmp(sec, el) {
+    ['profile','timeline','insights'].forEach(s => document.getElementById('ep-'+s).style.display = 'none');
+    document.getElementById('ep-'+sec).style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    const titles = { profile: 'My Performance Profile', timeline: 'Performance Timeline', insights: 'AI Insights & Recommendations' };
+    document.getElementById('ePageTitle').textContent = titles[sec];
+    if (sec === 'timeline') loadTimeline();
+    if (sec === 'insights') loadEmpInsights();
+}
+
+let tlLoaded = false;
+function loadTimeline() {
+    if (tlLoaded) return; tlLoaded = true;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const base = emp.PerformanceScore || 75;
+    const data = months.map((_, i) => Math.min(100, Math.max(40, base + (Math.random() * 20 - 10))).toFixed(0));
+    data[11] = base;
+    new Chart(document.getElementById('timelineChart'), {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Performance Score',
+                data: data,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99,102,241,0.08)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#6366f1',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { min: 40, max: 100, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+    const milestones = [
+        { color: '#10b981', title: 'Current Grade: ' + grade, sub: 'Based on latest performance score of ' + emp.PerformanceScore },
+        { color: '#6366f1', title: 'Task Completion Rate: ' + taskRate + '%', sub: emp.TasksCompleted + ' out of ' + emp.TasksAssigned + ' tasks completed' },
+        { color: '#f59e0b', title: 'Attendance Record: ' + emp.Attendance + '%', sub: 'Attendance status: ' + (emp.AttendanceStatus || 'N/A') },
+        { color: '#3b82f6', title: 'Deadline Adherence: ' + emp.DeadlineAdherence + '%', sub: 'Percentage of tasks completed on time' },
+    ];
+    const tl = document.getElementById('tlItems');
+    milestones.forEach(m => {
+        tl.innerHTML += `<div class="tl-item"><div class="tl-dot" style="background:${m.color}"></div><div class="tl-content"><div class="tl-title">${m.title}</div><div class="tl-sub">${m.sub}</div></div></div>`;
+    });
+}
+
+let insightsLoaded = false;
+function loadEmpInsights() {
+    if (insightsLoaded) return; insightsLoaded = true;
+    const score = emp.PerformanceScore || 0;
+    const att = emp.Attendance || 0;
+    const rate = parseInt(taskRate);
+    const insights = [
+        {
+            title: 'Performance Analysis',
+            text: score >= 85 ? `Outstanding performance! Your score of ${score} places you among the top performers. Keep up the excellent work and consider mentoring peers.`
+                : score >= 70 ? `Good performance with a score of ${score}. You're on the right track. Focus on improving deadline adherence to reach the next level.`
+                : `Your performance score of ${score} indicates room for improvement. Consider discussing a development plan with your manager.`
+        },
+        {
+            title: 'Attendance Insight',
+            text: att >= 90 ? `Excellent attendance rate of ${att}%! Your consistency and reliability are commendable and positively impact team productivity.`
+                : att >= 75 ? `Your attendance of ${att}% is satisfactory. Improving consistency could significantly boost your overall performance score.`
+                : `Attendance at ${att}% is below the expected threshold of 85%. Regular attendance is crucial for team performance and your own growth.`
+        },
+        {
+            title: 'Task Completion',
+            text: rate >= 90 ? `Exceptional task completion rate of ${rate}%! You consistently deliver results and demonstrate strong work ethic.`
+                : rate >= 75 ? `Good task completion at ${rate}%. Aim to close the gap by prioritizing pending tasks and managing time effectively.`
+                : `Task completion rate of ${rate}% needs attention. Try breaking down tasks into smaller milestones to improve delivery consistency.`
+        },
+        {
+            title: 'Recommendations',
+            text: score >= 85 ? 'You are a top performer. Consider taking on leadership responsibilities, cross-department projects, or skill development programs to advance your career.'
+                : score >= 70 ? 'Focus on consistency across all metrics. Set personal KPIs each week, track your progress, and communicate proactively with your manager.'
+                : 'Create a structured improvement plan with measurable goals. Regular check-ins with your manager and upskilling can significantly improve your performance trajectory.'
+        }
+    ];
+    const grid = document.getElementById('empAiGrid');
+    insights.forEach(i => {
+        grid.innerHTML += `<div class="ai-card"><div class="ai-card-header"><div class="ai-dot"></div><div class="ai-card-title">${i.title}</div></div><p>${i.text}</p></div>`;
+    });
+}
+
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+</script>
+</body>
+</html>

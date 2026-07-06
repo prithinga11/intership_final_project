@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VergeX — Admin Dashboard</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <div class="logo-icon">VX</div>
+        <span class="logo-text">VergeX</span>
+    </div>
+    <div class="nav-section-label">MAIN MENU</div>
+    <nav>
+        <a class="nav-item active" onclick="show('dashboard',this)">Dashboard</a>
+        <a class="nav-item" onclick="show('employees',this)">Employees</a>
+        <a class="nav-item" onclick="show('analytics',this)">Analytics</a>
+        <a class="nav-item" onclick="show('reports',this)">Reports</a>
+        <a class="nav-item" onclick="show('ai',this)">AI Insights</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-pill">
+            <div class="user-avatar" id="uAvatar">M</div>
+            <div>
+                <div class="user-name" id="uName">Manager</div>
+                <div class="user-role">Admin</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="header">
+        <div>
+            <h1 id="pageTitle">Performance Dashboard</h1>
+            <p id="pageSub">Welcome back! Here's what's happening with your team.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="header-date" id="dateEl"></div>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="s-dashboard" class="section-anim">
+        <div class="cards-grid">
+            <div class="card card-blue">
+                <div class="card-top"><div class="card-label">Total Employees</div><div class="card-icon">👥</div></div>
+                <div class="card-value" id="c-total">--</div>
+                <div class="card-sub">Active workforce</div>
+            </div>
+            <div class="card card-purple">
+                <div class="card-top"><div class="card-label">Avg Performance</div><div class="card-icon" style="font-size:18px;">◆</div></div>
+                <div class="card-value" id="c-perf">--</div>
+                <div class="card-sub">Overall score</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-top"><div class="card-label">Avg Attendance</div><div class="card-icon" style="font-size:18px;">▲</div></div>
+                <div class="card-value" id="c-att">--</div>
+                <div class="card-sub">This period</div>
+            </div>
+            <div class="card card-orange">
+                <div class="card-top"><div class="card-label">Task Completion</div><div class="card-icon" style="font-size:18px;">✓</div></div>
+                <div class="card-value" id="c-task">--</div>
+                <div class="card-sub">Avg across team</div>
+            </div>
+        </div>
+        <div class="highlights-grid">
+            <div class="highlight-card top">
+                <div class="highlight-header">Top Performer</div>
+                <div class="highlight-name" id="h-topName">--</div>
+                <div class="highlight-dept" id="h-topDept">--</div>
+                <div class="highlight-score">Score: <strong id="h-topScore">--</strong></div>
+            </div>
+            <div class="highlight-card low">
+                <div class="highlight-header">Needs Attention</div>
+                <div class="highlight-name" id="h-lowName">--</div>
+                <div class="highlight-dept" id="h-lowDept">--</div>
+                <div class="highlight-score">Score: <strong id="h-lowScore">--</strong></div>
+            </div>
+            <div class="highlight-card attendance">
+                <div class="highlight-header">Attendance Split</div>
+                <div class="att-row"><span class="att-dot good"></span>Good <strong id="h-good">--</strong></div>
+                <div class="att-row"><span class="att-dot avg"></span>Average <strong id="h-avg">--</strong></div>
+                <div class="att-row"><span class="att-dot poor"></span>Poor <strong id="h-poor">--</strong></div>
+            </div>
+        </div>
+        <div class="charts-grid">
+            <div class="chart-card"><div class="chart-title">Department Performance</div><canvas id="deptChart"></canvas></div>
+            <div class="chart-card"><div class="chart-title">Attendance Breakdown</div><canvas id="attChart"></canvas></div>
+        </div>
+        <div class="chart-card" style="margin-bottom:20px;"><div class="chart-title">Top 5 Performers</div><canvas id="topChart"></canvas></div>
+        <div class="footer-note">VergeX Analytics Dashboard &nbsp;•&nbsp; Last Updated: Today</div>
+    </div>
+
+    <!-- EMPLOYEES -->
+    <div id="s-employees" style="display:none;" class="section-anim">
+        <div class="table-controls">
+            <input class="search-box" id="searchBox" placeholder="Search by name, ID or department..." oninput="filterTable()">
+            <select class="filter-select" id="deptFilter" onchange="filterTable()">
+                <option value="">All Departments</option>
+                <option>Engineering</option>
+                <option>Human Resources</option>
+                <option>Sales</option>
+                <option>Finance</option>
+                <option>Marketing</option>
+            </select>
+            <select class="filter-select" id="gradeFilter" onchange="filterTable()">
+                <option value="">All Grades</option>
+                <option>Excellent</option>
+                <option>Good</option>
+                <option>Average</option>
+                <option>Poor</option>
+            </select>
+            <button onclick="openAdd()" style="padding:11px 20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;">+ Add Employee</button>
+        </div>
+        <div class="table-card">
+            <table class="emp-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Designation</th>
+            <th>Experience</th>
+            <th>Attendance</th>
+            <th>Tasks</th>
+            <th>Performance</th>
+            <th>Grade</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody id="empBody">
+    </tbody>
+</table>
+        </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="s-analytics" style="display:none;" class="section-anim">
+        <div class="charts-grid">
+            <div class="chart-card"><div class="chart-title">Performance by Department</div><canvas id="a-dept"></canvas></div>
+            <div class="chart-card"><div class="chart-title">Task Completion by Department</div><canvas id="a-task"></canvas></div>
+        </div>
+        <div class="charts-grid">
+            <div class="chart-card"><div class="chart-title">Attendance by Department</div><canvas id="a-att"></canvas></div>
+            <div class="chart-card"><div class="chart-title">Bottom 5 — Needs Improvement</div><canvas id="a-low"></canvas></div>
+        </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="s-reports" style="display:none;" class="section-anim">
+        <div class="reports-grid">
+            <div class="report-card">
+                <div class="report-icon-wrap">📋</div>
+                <div class="report-title">Full Employee Report</div>
+                <div class="report-desc">Export complete employee performance data including all metrics as a CSV file.</div>
+                <button class="report-btn" onclick="dlCSV()">Download CSV</button>
+            </div>
+            <div class="report-card">
+                <div class="report-icon-wrap">🏆</div>
+                <div class="report-title">Top Performers Report</div>
+                <div class="report-desc">Download the top 5 performing employees with their scores and department details.</div>
+                <button class="report-btn" onclick="dlTopCSV()">Download CSV</button>
+            </div>
+            <div class="report-card">
+                <div class="report-icon-wrap">📊</div>
+                <div class="report-title">Executive Summary</div>
+                <div class="report-desc">Download a text-based executive summary report with key performance indicators.</div>
+                <button class="report-btn" onclick="dlSummary()">Download Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI INSIGHTS -->
+    <div id="s-ai" style="display:none;" class="section-anim">
+        <div class="ai-grid" id="aiGrid"></div>
+        <div class="chart-card">
+            <div class="chart-title">Performance Grade Distribution</div>
+            <canvas id="gradeChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="./script.js"></script>
+<!-- EMPLOYEE 360 MODAL -->
+<div id="modal360" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;" onclick="closeModal360(event)">
+    <div style="background:#f4f6fb;border-radius:24px;width:680px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;" onclick="event.stopPropagation()">
+        
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#0f1224,#1e2340);border-radius:24px 24px 0 0;padding:32px 36px;position:relative;">
+            <button onclick="closeModal360()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+            <div style="display:flex;align-items:center;gap:20px;">
+                <div id="m360-avatar" style="width:64px;height:64px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:white;flex-shrink:0;"></div>
+                <div>
+
+                    <div id="m360-name" style="font-size:22px;font-weight:800;color:white;margin-bottom:4px;"></div>
+                    <div id="m360-meta" style="font-size:14px;color:#7c84a8;"></div>
+                    <div id="m360-badge" style="display:inline-block;margin-top:8px;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;"></div>
+                </div>
+                <div style="margin-left:auto;text-align:center;">
+                    <div id="m360-score" style="font-size:48px;font-weight:800;color:white;line-height:1;"></div>
+                    <div style="font-size:11px;color:#7c84a8;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Score</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:28px 36px;">
+
+            <!-- Stat row -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+                <div style="background:white;border-radius:14px;padding:16px;text-align:center;border:1px solid #e5e7eb;">
+                    <div id="m360-att" style="font-size:24px;font-weight:700;color:#0f1224;"></div>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">Attendance</div>
+                </div>
+                <div style="background:white;border-radius:14px;padding:16px;text-align:center;border:1px solid #e5e7eb;">
+                    <div id="m360-rate" style="font-size:24px;font-weight:700;color:#0f1224;"></div>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">Task Rate</div>
+                </div>
+                <div style="background:white;border-radius:14px;padding:16px;text-align:center;border:1px solid #e5e7eb;">
+                    <div id="m360-deadline" style="font-size:24px;font-weight:700;color:#0f1224;"></div>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">On-Time</div>
+                </div>
+                <div style="background:white;border-radius:14px;padding:16px;text-align:center;border:1px solid #e5e7eb;">
+                    <div id="m360-exp" style="font-size:24px;font-weight:700;color:#0f1224;"></div>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">Experience</div>
+                </div>
+            </div>
+
+            <!-- Details grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+                <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;">
+                    <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Employee Details</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Employee ID</span>
+                            <span id="m360-id" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Department</span>
+                            <span id="m360-dept" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Designation</span>
+                            <span id="m360-desig" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Experience</span>
+                            <span id="m360-expyr" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;">
+                    <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Task Breakdown</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Tasks Assigned</span>
+                            <span id="m360-ta" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Tasks Completed</span>
+                            <span id="m360-tc" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Completion Rate</span>
+                            <span id="m360-tcr" style="font-weight:600;color:#6366f1;"></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;">
+                            <span style="color:#6b7280;">Deadline Adherence</span>
+                            <span id="m360-da" style="font-weight:600;color:#0f1224;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Details -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Personal Information</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div style="display:flex;justify-content:space-between;font-size:14px;">
+                        <span style="color:#6b7280;">Age</span>
+                        <span id="m360-age" style="font-weight:600;color:#0f1224;">--</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;">
+                        <span style="color:#6b7280;">Blood Group</span>
+                        <span id="m360-blood" style="font-weight:600;color:#0f1224;">--</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;">
+                        <span style="color:#6b7280;">Date of Joining</span>
+                        <span id="m360-doj" style="font-weight:600;color:#0f1224;">--</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;">
+                        <span style="color:#6b7280;">Emergency Contact</span>
+                        <span id="m360-ecname" style="font-weight:600;color:#0f1224;">--</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;grid-column:1 / -1;">
+                        <span style="color:#6b7280;">Emergency Phone</span>
+                        <span id="m360-ecphone" style="font-weight:600;color:#0f1224;">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insight -->
+            <div style="background:linear-gradient(135deg,#f5f3ff,#eff6ff);border-radius:14px;padding:20px;border:1px solid #e5e7eb;">
+                <div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">AI Performance Insight</div>
+                <p id="m360-insight" style="font-size:14px;color:#374151;line-height:1.7;"></p>
+            </div>
+
+            <!-- Performance bar -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-top:16px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="font-size:13px;font-weight:600;color:#0f1224;">Performance Score</span>
+                    <span id="m360-scoreBar" style="font-size:13px;font-weight:700;color:#6366f1;"></span>
+                </div>
+                <div style="background:#f3f4f6;border-radius:20px;height:10px;overflow:hidden;">
+                    <div id="m360-bar" style="height:100%;border-radius:20px;background:linear-gradient(90deg,#6366f1,#8b5cf6);transition:width 0.6s ease;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:6px;">
+                    <span style="font-size:11px;color:#9ca3af;">0</span>
+                    <span style="font-size:11px;color:#9ca3af;">100</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- ADD/EDIT MODAL -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:20px;padding:36px;width:560px;max-width:90vw;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <div style="font-size:18px;font-weight:700;color:#0f1224;" id="modalTitle">Add Employee</div>
+            <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
+        </div>
+        <form id="empForm" onsubmit="return false;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">EMPLOYEE ID</label>
+                    <input id="formEmpId" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="e.g. E021">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">FULL NAME</label>
+                    <input id="formName" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="Full name">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">DEPARTMENT</label>
+                    <select id="formDept" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;background:white;">
+                        <option>Engineering</option>
+                        <option>Human Resources</option>
+                        <option>Sales</option>
+                        <option>Finance</option>
+                        <option>Marketing</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">DESIGNATION</label>
+                    <input id="formDesig" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="Job title">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">EXPERIENCE (YRS)</label>
+                    <input id="formExp" type="number" min="0" max="40" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">ATTENDANCE %</label>
+                    <input id="formAtt" type="number" min="0" max="100" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0-100">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">TASKS ASSIGNED</label>
+                    <input id="formTA" type="number" min="0" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">TASKS COMPLETED</label>
+                    <input id="formTC" type="number" min="0" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">DEADLINE ADHERENCE %</label>
+                    <input id="formDA" type="number" min="0" max="100" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0-100">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">PERFORMANCE SCORE</label>
+                    <input id="formPS" type="number" min="0" max="100" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0-100">
+                </div>
+            </div>
+
+            <div style="font-size:12px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:24px;margin-bottom:14px;border-top:1px solid #f3f4f6;padding-top:20px;">Personal Information</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">AGE</label>
+                    <input id="formAge" type="number" min="16" max="80" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="e.g. 29">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">BLOOD GROUP</label>
+                    <select id="formBlood" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;background:white;">
+                        <option value="">Select</option>
+                        <option>A+</option><option>A-</option>
+                        <option>B+</option><option>B-</option>
+                        <option>AB+</option><option>AB-</option>
+                        <option>O+</option><option>O-</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">DATE OF JOINING</label>
+                    <input id="formDOJ" type="date" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">PHOTO</label>
+                    <input id="formPhoto" type="file" accept="image/*" style="width:100%;padding:8px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:13px;outline:none;">
+                    <input type="hidden" id="formPhotoData">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">EMERGENCY CONTACT NAME</label>
+                    <input id="formEcName" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="Full name">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">EMERGENCY CONTACT PHONE</label>
+                    <input id="formEcPhone" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="+91 ...">
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button onclick="closeModal()" style="flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;color:#6b7280;">Cancel</button>
+                <button id="saveBtn" style="flex:1;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Save Employee</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
