@@ -188,6 +188,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="./script.js"></script>
 <!-- EMPLOYEE 360 MODAL -->
 <div id="modal360" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;" onclick="closeModal360(event)">
@@ -307,11 +308,111 @@
                 </div>
             </div>
 
+            <!-- Identity & Documents -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Identity & Documents</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Aadhaar Number</span><span id="m360-aadhaar" style="font-weight:600;color:#0f1224;font-family:monospace;">--</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">PAN Number</span><span id="m360-pan" style="font-weight:600;color:#0f1224;font-family:monospace;">--</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Passport Number</span><span id="m360-passport" style="font-weight:600;color:#0f1224;">--</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#6b7280;">Driving Licence</span><span id="m360-dl" style="font-weight:600;color:#0f1224;">--</span></div>
+                </div>
+            </div>
+
+            <!-- Attendance & Leave -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Attendance & Leave</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                    <div style="text-align:center;">
+                        <div id="m360-sick" style="font-size:18px;font-weight:700;color:#0f1224;">--</div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Sick Leave Left</div>
+                        <div style="background:#f3f4f6;border-radius:10px;height:6px;overflow:hidden;margin-top:8px;"><div id="m360-sickBar" style="height:100%;background:#ef4444;border-radius:10px;"></div></div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="m360-casual" style="font-size:18px;font-weight:700;color:#0f1224;">--</div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Casual Leave Left</div>
+                        <div style="background:#f3f4f6;border-radius:10px;height:6px;overflow:hidden;margin-top:8px;"><div id="m360-casualBar" style="height:100%;background:#f59e0b;border-radius:10px;"></div></div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="m360-earned" style="font-size:18px;font-weight:700;color:#0f1224;">--</div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Earned Leave Left</div>
+                        <div style="background:#f3f4f6;border-radius:10px;height:6px;overflow:hidden;margin-top:8px;"><div id="m360-earnedBar" style="height:100%;background:#10b981;border-radius:10px;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance & Tasks (deeper) -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Performance & Tasks</div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;">
+                    <div style="background:#f9fafb;border-radius:10px;padding:14px;text-align:center;">
+                        <div id="m360-qi" style="font-size:20px;font-weight:700;color:#6366f1;">--</div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Quality Index</div>
+                    </div>
+                    <div style="background:#f9fafb;border-radius:10px;padding:14px;text-align:center;">
+                        <div id="m360-avgTasks" style="font-size:20px;font-weight:700;color:#0f1224;">--</div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Avg Tasks / Month</div>
+                    </div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;">Task Priority Breakdown</div>
+                <div style="display:flex;height:14px;border-radius:8px;overflow:hidden;margin-bottom:8px;">
+                    <div id="m360-priHigh" style="background:#ef4444;"></div>
+                    <div id="m360-priMed" style="background:#f59e0b;"></div>
+                    <div id="m360-priLow" style="background:#10b981;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;">
+                    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>High <strong id="m360-priHighTxt" style="color:#0f1224;"></strong></span>
+                    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:4px;"></span>Medium <strong id="m360-priMedTxt" style="color:#0f1224;"></strong></span>
+                    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:4px;"></span>Low <strong id="m360-priLowTxt" style="color:#0f1224;"></strong></span>
+                </div>
+            </div>
+
+            <!-- Projects -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Projects</div>
+                <div id="m360-projects" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+
+            <!-- Skills & Certifications -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Skills & Certifications</div>
+                <div id="m360-skills" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;"></div>
+                <div style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;border-top:1px solid #f3f4f6;padding-top:14px;">Certifications</div>
+                <div id="m360-certs" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
+            <!-- Achievements & Awards -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Achievements & Awards</div>
+                <div id="m360-achievements" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+
+            <!-- Feedback -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Feedback</div>
+                <div id="m360-feedback" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+
+            <!-- Assets Assigned -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Assets Assigned</div>
+                <div id="m360-assets" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+            </div>
+
+            <!-- Documents -->
+            <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Documents</div>
+                <div id="m360-documents" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
             <!-- AI Insight -->
             <div style="background:linear-gradient(135deg,#f5f3ff,#eff6ff);border-radius:14px;padding:20px;border:1px solid #e5e7eb;">
                 <div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">AI Performance Insight</div>
                 <p id="m360-insight" style="font-size:14px;color:#374151;line-height:1.7;"></p>
             </div>
+
+            <!-- Download PDF -->
+            <button onclick="downloadEmployee360PDF()" style="width:100%;margin-top:16px;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">⬇ Download Employee 360 PDF</button>
 
             <!-- Performance bar -->
             <div style="background:white;border-radius:14px;padding:20px;border:1px solid #e5e7eb;margin-top:16px;">
@@ -422,6 +523,37 @@
                     <input id="formEcPhone" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="+91 ...">
                 </div>
             </div>
+            <div style="font-size:12px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:24px;margin-bottom:14px;border-top:1px solid #f3f4f6;padding-top:20px;">Identity & Leave</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">AADHAAR NUMBER</label>
+        <input id="formAadhaar" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="12-digit number">
+    </div>
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">PAN NUMBER</label>
+        <input id="formPAN" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="ABCDE1234F">
+    </div>
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">PASSPORT NUMBER</label>
+        <input id="formPassport" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="Optional">
+    </div>
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">DRIVING LICENCE</label>
+        <input id="formDL" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="Optional">
+    </div>
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">SICK LEAVE TAKEN (of 12)</label>
+        <input id="formSick" type="number" min="0" max="12" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0">
+    </div>
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">CASUAL LEAVE TAKEN (of 12)</label>
+        <input id="formCasual" type="number" min="0" max="12" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0">
+    </div>
+    <div>
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:6px;">EARNED LEAVE TAKEN (of 15)</label>
+        <input id="formEarned" type="number" min="0" max="15" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;outline:none;" placeholder="0">
+    </div>
+</div>
 
             <div style="display:flex;gap:12px;margin-top:24px;">
                 <button onclick="closeModal()" style="flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;color:#6b7280;">Cancel</button>
