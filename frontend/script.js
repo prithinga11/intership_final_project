@@ -2,6 +2,7 @@ const API = 'http://127.0.0.1:5000';
 let allEmp = [];
 let analyticsLoaded = false;
 let gradeLoaded = false;
+let current360Emp = null;
 
 if (!localStorage.getItem('vergex_role')) window.location.href = 'login.html';
 if (localStorage.getItem('vergex_role') === 'employee') window.location.href = 'employee.html';
@@ -245,6 +246,14 @@ function openEdit(e) {
     document.getElementById('formEcName').value = e.EmergencyContactName || '';
     document.getElementById('formEcPhone').value = e.EmergencyContactPhone || '';
     document.getElementById('formPhotoData').value = e.Photo || '';
+    document.getElementById('formAadhaar').value = e.Aadhaar || '';
+    document.getElementById('formPAN').value = e.PAN || '';
+    document.getElementById('formPassport').value = e.Passport || '';
+    document.getElementById('formDL').value = e.DrivingLicence || '';
+    const lv = e.Leave || {};
+    document.getElementById('formSick').value = lv.Sick ? lv.Sick.taken : 0;
+    document.getElementById('formCasual').value = lv.Casual ? lv.Casual.taken : 0;
+    document.getElementById('formEarned').value = lv.Earned ? lv.Earned.taken : 0;
     document.getElementById('saveBtn').onclick = () => saveEdit(e.EmployeeID);
     document.getElementById('modal').style.display = 'flex';
 }
@@ -281,6 +290,13 @@ function getFormData(photoData) {
         EmergencyContactName: document.getElementById('formEcName').value.trim(),
         EmergencyContactPhone: document.getElementById('formEcPhone').value.trim(),
         Photo: photoData || '',
+        Aadhaar: document.getElementById('formAadhaar').value.trim(),
+        PAN: document.getElementById('formPAN').value.trim(),
+        Passport: document.getElementById('formPassport').value.trim(),
+        DrivingLicence: document.getElementById('formDL').value.trim(),
+        SickLeaveTaken: document.getElementById('formSick').value,
+        CasualLeaveTaken: document.getElementById('formCasual').value,
+        EarnedLeaveTaken: document.getElementById('formEarned').value,
     };
 }
 
@@ -315,6 +331,7 @@ function refreshTable() {
 }
 // ============ EMPLOYEE 360 ============
 function open360(e) {
+    current360Emp = e;
     const score = e.PerformanceScore;
     const grade = score >= 90 ? 'Excellent' : score >= 75 ? 'Good' : score >= 60 ? 'Average' : 'Poor';
     const badgeMap = { Excellent: '#d1fae5;color:#065f46', Good: '#dbeafe;color:#1e40af', Average: '#fef3c7;color:#92400e', Poor: '#fee2e2;color:#991b1b' };
@@ -360,7 +377,184 @@ function open360(e) {
         : `${e.Name} currently scores ${score} and needs structured support. Attendance at ${e.Attendance}% and task completion at ${taskRate}% indicate challenges that a personalised improvement plan could address.`;
 
     document.getElementById('m360-insight').textContent = insight;
+    document.getElementById('m360-aadhaar').textContent = e.AadhaarMasked || '--';
+    document.getElementById('m360-pan').textContent = e.PANMasked || '--';
+    document.getElementById('m360-passport').textContent = e.Passport || '--';
+    document.getElementById('m360-dl').textContent = e.DrivingLicence || '--';
+
+    const leave = e.Leave || {};
+    ['Sick','Casual','Earned'].forEach(type => {
+        const info = leave[type] || { total: 0, taken: 0, remaining: 0 };
+        const key = type.toLowerCase();
+        document.getElementById(`m360-${key}`).textContent = `${info.remaining}/${info.total}`;
+        const pct = info.total ? (info.taken / info.total) * 100 : 0;
+        document.getElementById(`m360-${key}Bar`).style.width = pct + '%';
+    });
+    // Performance & Tasks (deeper)
+    document.getElementById('m360-qi').textContent = e.QualityIndex ?? '--';
+    document.getElementById('m360-avgTasks').textContent = e.AvgTasksPerMonth ?? '--';
+    const pri = e.TaskPriority || { High: 0, Medium: 0, Low: 0 };
+    document.getElementById('m360-priHigh').style.width = pri.High + '%';
+    document.getElementById('m360-priMed').style.width = pri.Medium + '%';
+    document.getElementById('m360-priLow').style.width = pri.Low + '%';
+    document.getElementById('m360-priHighTxt').textContent = pri.High + '%';
+    document.getElementById('m360-priMedTxt').textContent = pri.Medium + '%';
+    document.getElementById('m360-priLowTxt').textContent = pri.Low + '%';
+
+    // Projects
+    const statusColor = { Completed: '#10b981', 'In Progress': '#6366f1', 'On Hold': '#f59e0b' };
+    const projects = e.Projects || [];
+    document.getElementById('m360-projects').innerHTML = projects.map(p => `
+        <div style="background:#f9fafb;border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:13px;font-weight:600;color:#0f1224;">${p.name}</span>
+                <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:12px;background:${statusColor[p.status]}20;color:${statusColor[p.status]};">${p.status}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-bottom:6px;">
+                <span>Role: ${p.role}</span>
+                <span>${p.completion}%</span>
+            </div>
+            <div style="background:#e5e7eb;border-radius:8px;height:6px;overflow:hidden;">
+                <div style="height:100%;width:${p.completion}%;background:${statusColor[p.status]};border-radius:8px;"></div>
+            </div>
+        </div>
+    `).join('');
+
+    // Skills & Certifications
+    const levelColor = { Beginner: '#9ca3af', Intermediate: '#f59e0b', Advanced: '#6366f1', Expert: '#10b981' };
+    const skills = e.Skills || [];
+    document.getElementById('m360-skills').innerHTML = skills.map(s => `
+        <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                <span style="font-weight:600;color:#0f1224;">${s.name}</span>
+                <span style="font-size:11px;font-weight:700;color:${levelColor[s.level]};">${s.level}</span>
+            </div>
+            <div style="background:#f3f4f6;border-radius:8px;height:6px;overflow:hidden;">
+                <div style="height:100%;width:${s.proficiency}%;background:${levelColor[s.level]};border-radius:8px;"></div>
+            </div>
+        </div>
+    `).join('');
+
+    const certs = e.Certifications || [];
+    document.getElementById('m360-certs').innerHTML = certs.length ? certs.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#f9fafb;border-radius:8px;padding:10px 12px;">
+            <span style="font-size:13px;color:#0f1224;font-weight:600;">🎓 ${c.name}</span>
+            <span style="font-size:12px;color:#9ca3af;">${c.year}</span>
+        </div>
+    `).join('') : '<div style="font-size:13px;color:#9ca3af;">No certifications on record.</div>';
+
+    // Achievements & Awards
+    const achievements = e.Achievements || [];
+    document.getElementById('m360-achievements').innerHTML = achievements.length ? achievements.map(a => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#fffbeb,#fff7ed);border-radius:10px;padding:12px 14px;border:1px solid #fde68a;">
+            <span style="font-size:13px;color:#0f1224;font-weight:600;">🏆 ${a.title}</span>
+            <span style="font-size:12px;color:#9ca3af;">${a.year}</span>
+        </div>
+    `).join('') : '<div style="font-size:13px;color:#9ca3af;">No achievements on record yet.</div>';
+
+    // Feedback
+    const feedback = e.Feedback || [];
+    document.getElementById('m360-feedback').innerHTML = feedback.length ? feedback.map(f => {
+        const stars = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+        const when = f.monthsAgo === 1 ? '1 month ago' : `${f.monthsAgo} months ago`;
+        return `
+        <div style="background:#f9fafb;border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:13px;font-weight:600;color:#0f1224;">${f.reviewer}</span>
+                <span style="font-size:12px;color:#f59e0b;letter-spacing:1px;">${stars}</span>
+            </div>
+            <p style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:4px;">${f.comment}</p>
+            <span style="font-size:11px;color:#9ca3af;">${when}</span>
+        </div>`;
+    }).join('') : '<div style="font-size:13px;color:#9ca3af;">No feedback on record yet.</div>';
+
+    // Assets Assigned
+    const assetIcon = { 'ID Card': '🪪', 'Access Card': '🔑', 'Laptop': '💻', 'External Monitor': '🖥️', 'Wireless Mouse & Keyboard': '⌨️', 'Noise-cancelling Headset': '🎧', 'Company Mobile Phone': '📱' };
+    const assets = e.Assets || [];
+    document.getElementById('m360-assets').innerHTML = assets.map(a => `
+        <div style="background:#f9fafb;border-radius:10px;padding:12px;">
+            <div style="font-size:13px;font-weight:600;color:#0f1224;margin-bottom:4px;">${assetIcon[a.name] || '📦'} ${a.name}</div>
+            <div style="font-size:11px;color:#9ca3af;">${a.detail ? a.detail + ' · ' : ''}${a.tag}</div>
+            <span style="display:inline-block;margin-top:6px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:#d1fae5;color:#065f46;">${a.status}</span>
+        </div>
+    `).join('');
+
+    // Documents
+    const docIcon = { Resume: '📄', 'Offer Letter': '📝', Certificates: '🎓' };
+    const documents = e.Documents || [];
+    document.getElementById('m360-documents').innerHTML = documents.map(doc => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#f9fafb;border-radius:8px;padding:10px 12px;">
+            <span style="font-size:13px;color:#0f1224;font-weight:600;">${docIcon[doc.type] || '📎'} ${doc.name}</span>
+            <span style="display:flex;align-items:center;gap:10px;">
+                ${doc.date ? `<span style="font-size:11px;color:#9ca3af;">${doc.date}</span>` : ''}
+                <span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px;background:${doc.uploaded ? '#d1fae5;color:#065f46' : '#fee2e2;color:#991b1b'};">${doc.uploaded ? 'Uploaded' : 'Not Uploaded'}</span>
+            </span>
+        </div>
+    `).join('');
+
     document.getElementById('modal360').style.display = 'flex';
+}
+
+function downloadEmployee360PDF() {
+    const e = current360Emp;
+    if (!e || !window.jspdf) { alert('PDF library not loaded yet — please try again in a moment.'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 20;
+    const line = (text, size = 10, gap = 6) => { doc.setFontSize(size); doc.text(text, 14, y); y += gap; };
+    const heading = (text) => { if (y > 265) { doc.addPage(); y = 20; } y += 4; line(text, 13, 8); };
+
+    doc.setFontSize(18);
+    doc.text('VergeX — Employee 360 Report', 14, y); y += 10;
+    line(`${e.Name}  (${e.EmployeeID})`, 12, 7);
+    line(`${e.Department} · ${e.Designation}`, 11, 10);
+
+    heading('Performance');
+    line(`Performance Score: ${e.PerformanceScore}  |  Grade: ${e.PerformanceGrade}`);
+    line(`Attendance: ${e.Attendance}%  |  Deadline Adherence: ${e.DeadlineAdherence}%`);
+    line(`Quality Index: ${e.QualityIndex}  |  Avg Tasks/Month: ${e.AvgTasksPerMonth}`);
+
+    heading('Leave Balance');
+    const leave = e.Leave || {};
+    ['Sick', 'Casual', 'Earned'].forEach(t => {
+        const info = leave[t] || { remaining: 0, total: 0 };
+        line(`${t}: ${info.remaining}/${info.total} remaining`);
+    });
+
+    heading('Top Skills');
+    (e.Skills || []).forEach(s => line(`${s.name} — ${s.level}`));
+
+    heading('Certifications');
+    const certs = e.Certifications || [];
+    if (certs.length) certs.forEach(c => line(`${c.name} (${c.year})`));
+    else line('No certifications on record.');
+
+    heading('Achievements');
+    const achievements = e.Achievements || [];
+    if (achievements.length) achievements.forEach(a => line(`${a.title} (${a.year})`));
+    else line('No achievements on record yet.');
+
+    heading('Projects');
+    (e.Projects || []).forEach(p => line(`${p.name} — ${p.role} — ${p.status} (${p.completion}%)`));
+
+    heading('Recent Feedback');
+    const feedback = e.Feedback || [];
+    if (feedback.length) {
+        feedback.forEach(f => {
+            if (y > 260) { doc.addPage(); y = 20; }
+            const lines = doc.splitTextToSize(`${f.reviewer} (${f.rating}/5): ${f.comment}`, 180);
+            doc.setFontSize(10);
+            doc.text(lines, 14, y);
+            y += lines.length * 6 + 2;
+        });
+    } else {
+        line('No feedback on record yet.');
+    }
+
+    heading('Assets Assigned');
+    (e.Assets || []).forEach(a => line(`${a.name}${a.detail ? ' — ' + a.detail : ''} (${a.tag})`));
+
+    doc.save(`${e.EmployeeID}_${e.Name.replace(/\s+/g, '_')}_Employee360.pdf`);
 }
 
 function closeModal360(e) {
